@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AmbiguousIdentifierProperty" xml:space="preserve">
+    <value>The {0} attribute can only be applied to one property per class/entity type (invalid class: {1}).</value>
+  </data>
+  <data name="AmbiguousReferenceIdentifer" xml:space="preserve">
+    <value>An ambiguous source system entity ID/destination system entity ID mapping detected in systems with shared identifiers when attempting to resolve the ID of a referenced entity. (Entity Type: '{0}', Property: '{1}', Source System ID: '{2}')</value>
+  </data>
+  <data name="CacheFeedNotFound" xml:space="preserve">
+    <value>The cache feed represented by type '{0}' could not be found; it may not exist or the type name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="CacheNotInitialized" xml:space="preserve">
+    <value>The cache has not been initialized.</value>
+  </data>
+  <data name="CannotChangeCorrelationIdUpdateSourceSystemEntityId" xml:space="preserve">
+    <value>A different source system entity ID has been registered for last access correlation ID update.</value>
+  </data>
+  <data name="CannotExtractPropertyName" xml:space="preserve">
+    <value>A property name cannot be extracted from the specified lambda expression.</value>
+  </data>
+  <data name="CannotRejectDestinationSystemEntity" xml:space="preserve">
+    <value>A destination system entity cannot be rejected.</value>
+  </data>
+  <data name="CastOperatorThrewException" xml:space="preserve">
+    <value>The EntityIdentifier cast operator threw an exception; see inner exception for details.</value>
+  </data>
+  <data name="CompatibleEntityTypeReferenceIdentifierConflict" xml:space="preserve">
+    <value>The source system entity ID exists in multiple compatible entity types. (Property: '{0}', Source System ID: '{1}')</value>
+  </data>
+  <data name="ConfigurationNotAvailable" xml:space="preserve">
+    <value>The application configuration is not available.</value>
+  </data>
+  <data name="ContextNotAvailable" xml:space="preserve">
+    <value>The context is not available.</value>
+  </data>
+  <data name="ConversionFromNotSupported" xml:space="preserve">
+    <value>Conversion from '{0}' to EntityIdentifier is not supported.</value>
+  </data>
+  <data name="ConversionToNotSupported" xml:space="preserve">
+    <value>Conversion from EntityIdentifier to '{0}' is not supported.</value>
+  </data>
+  <data name="DependencyInjectionContainerCompositionFailed" xml:space="preserve">
+    <value>The composition of the dependency injection container has failed; see inner exception for details.</value>
+  </data>
+  <data name="DeploymentStepFailed" xml:space="preserve">
+    <value>The execution of a deployment step resulted in an exception; see inner exception for details.</value>
+  </data>
+  <data name="DestinationSystemEntityIdChanged" xml:space="preserve">
+    <value>The destination system entity ID returned by the metadata provider has changed from '{0}' to '{1}'.</value>
+  </data>
+  <data name="DestinationSystemEntityIdNotSet" xml:space="preserve">
+    <value>The destination system ID of the specified entity is not set.</value>
+  </data>
+  <data name="DestinationSystemIdentifierPropertyNotFound" xml:space="preserve">
+    <value>The type '{0}' doesn't have the property that represents the destination system identifier specified (apply the DestinationSystemIdentifier attribute).</value>
+  </data>
+  <data name="DuplicateFeedEntityType" xml:space="preserve">
+    <value>The feed represented by '{0}' has an ambiguous specification (attribute) for the '{1}' entity type.</value>
+  </data>
+  <data name="DuplicateOfNonexistentEntity" xml:space="preserve">
+    <value>The entity appears to be a duplicate of an entity that no longer exists in the destination system (ID: '{0}').</value>
+  </data>
+  <data name="DuplicationRuleReturnedNull" xml:space="preserve">
+    <value>The '{0}' duplication rule has returned a null reference for the collection of duplicates.</value>
+  </data>
+  <data name="EntityHasNoSourceSystemEntityId" xml:space="preserve">
+    <value>The entity has no source system entity identifier.</value>
+  </data>
+  <data name="EntityTypeDefinedMultipleTimes" xml:space="preserve">
+    <value>The entity type represented by '{0}' is defined multiple times.</value>
+  </data>
+  <data name="EntityTypeDefinitionHasGenericArguments" xml:space="preserve">
+    <value>The '{0}' entity type definition type has illegal generic arguments.</value>
+  </data>
+  <data name="EntityTypeDefinitionImplementsInterfaceMultipleTimes" xml:space="preserve">
+    <value>The '{0}' entity type definition implements the '{1}' interface multiple times.</value>
+  </data>
+  <data name="EntityTypeDestinationSystemDoesNotExist" xml:space="preserve">
+    <value>The type '{0}', specified as the destination system for the entity type represented by '{1}', doesn't represent an external system.</value>
+  </data>
+  <data name="EntityTypeIdNotFound" xml:space="preserve">
+    <value>The specified entity type (ID = '{0:d}') could not be found.</value>
+  </data>
+  <data name="EntityTypeIdNotUnique" xml:space="preserve">
+    <value>The entity type ID of '{0:d}' is not unique.</value>
+  </data>
+  <data name="EntityTypeNameNotUnique" xml:space="preserve">
+    <value>The entity type name of '{0}' is not unique.</value>
+  </data>
+  <data name="EntityTypeNamesMustBeUnique" xml:space="preserve">
+    <value>The entity type names must be unique.</value>
+  </data>
+  <data name="EntityTypeNameTooLong" xml:space="preserve">
+    <value>The name of '{0}' set for the '{1}' entity type exceeds the maximum length of {2} characters.</value>
+  </data>
+  <data name="EntityTypeNameWhiteSpace" xml:space="preserve">
+    <value>The '{0}' entity type has its name set to a white space value.</value>
+  </data>
+  <data name="EntityTypeNotFound" xml:space="preserve">
+    <value>The specified entity type ('{0}') could not be found; it may not exist or the name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="EntityTypeNotRegistered" xml:space="preserve">
+    <value>No entity type registered for '{0}'.</value>
+  </data>
+  <data name="EventReceiverThrewException" xml:space="preserve">
+    <value>An event receiver has thrown an exception; see inner exception for details.</value>
+  </data>
+  <data name="ExpressionDoesNotRepresentProperty" xml:space="preserve">
+    <value>The specified lambda expression does not represent a property.</value>
+  </data>
+  <data name="ExternalSystemIdNotFound" xml:space="preserve">
+    <value>The specified external system (ID = '{0:d}') could not be found.</value>
+  </data>
+  <data name="ExternalSystemIdNotUnique" xml:space="preserve">
+    <value>The external system ID of '{0:d}' is not unique.</value>
+  </data>
+  <data name="ExternalSystemNameNotUnique" xml:space="preserve">
+    <value>The external system name of '{0}' is not unique.</value>
+  </data>
+  <data name="ExternalSystemNamesMustBeUnique" xml:space="preserve">
+    <value>The external system names must be unique.</value>
+  </data>
+  <data name="ExternalSystemNameTooLong" xml:space="preserve">
+    <value>The name of '{0}' set for the external system represented by '{1}' exceeds the maximum length of {2} characters.</value>
+  </data>
+  <data name="ExternalSystemNameWhiteSpace" xml:space="preserve">
+    <value>The external system represented by '{0}' has its name set to a white space value.</value>
+  </data>
+  <data name="FailedToInstantiateBridge" xml:space="preserve">
+    <value>Failed to instantiate the generic/non-generic bridge; see inner exception for details.</value>
+  </data>
+  <data name="FeedEntityTypeNotImplemented" xml:space="preserve">
+    <value>The feed represented by '{0}' has at least one entity type specified (in a feed attribute) with no matching interface implementation.</value>
+  </data>
+  <data name="FeedHasMoreThanOneDefaultAttribute" xml:space="preserve">
+    <value>The type '{0}' representing a feed has more than one default feed attribute.</value>
+  </data>
+  <data name="FeedNotFound" xml:space="preserve">
+    <value>The feed represented by type '{0}' could not be found; it may not exist or the type name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="FeedNotRegistered" xml:space="preserve">
+    <value>No feed is registered for entity type '{0}' and source system '{1}'.</value>
+  </data>
+  <data name="FeedReturnedCollectionWithNullElement" xml:space="preserve">
+    <value>An element in the collection of entities returned by the feed is a null reference.</value>
+  </data>
+  <data name="FeedReturnedNull" xml:space="preserve">
+    <value>The feed returned a null reference.</value>
+  </data>
+  <data name="FeedSourceSystemNotSpecifiedOrInferable" xml:space="preserve">
+    <value>The source system isn't specified and couldn't be inferred for the feed represented by '{0}' for the '{1}' entity type.</value>
+  </data>
+  <data name="GenericFeedSourceSystemNotSpecifiedOrInferable" xml:space="preserve">
+    <value>The source system isn't specified and couldn't be inferred for the generic feed represented by '{0}'.</value>
+  </data>
+  <data name="GetDestinationSystemEntityIdReturnedNull" xml:space="preserve">
+    <value>The GetDestinationSystemEntityId method of the metadata provider returned a null reference.</value>
+  </data>
+  <data name="GetLabelReturnedNull" xml:space="preserve">
+    <value>The GetLabel method of the metadata provider returned a null reference.</value>
+  </data>
+  <data name="GetSourceSystemEntityIdReturnedNull" xml:space="preserve">
+    <value>The GetSourceSystemEntityId method of the metadata provider returned a null references.</value>
+  </data>
+  <data name="IndexCreated" xml:space="preserve">
+    <value>1 index created.</value>
+  </data>
+  <data name="IndexingCache" xml:space="preserve">
+    <value>Indexing the entity cache</value>
+  </data>
+  <data name="IndicesCreatedFormat" xml:space="preserve">
+    <value>{0} indices created.</value>
+  </data>
+  <data name="InitializableThrewException" xml:space="preserve">
+    <value>An IInitializable instance threw an exception; see inner exception for details.</value>
+  </data>
+  <data name="InitializationEventsSuppressed" xml:space="preserve">
+    <value>Unable to access initialization context: Initialization events for this instance are suppressed.</value>
+  </data>
+  <data name="InterfaceImplementedIllegally" xml:space="preserve">
+    <value>The type '{0}' doesn't implement the '{1}' interface in a legal way.</value>
+  </data>
+  <data name="InvalidEntityType" xml:space="preserve">
+    <value>The CLR type for the entity type '{0}' ('{1}') could not be loaded.</value>
+  </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The value '{0}' does not represent a valid {1} value.</value>
+  </data>
+  <data name="InvalidGarbageCollectionBehavior" xml:space="preserve">
+    <value>The value '{0}' does not represent a valid garbage collection behavior.</value>
+  </data>
+  <data name="InvalidGenericFeedAttribute" xml:space="preserve">
+    <value>The type '{0}' doesn't have a valid generic feed attribute: Exactly one feed attribute with the source system and at least one entity type specified expected.</value>
+  </data>
+  <data name="InvalidInitializeParameters" xml:space="preserve">
+    <value>Specifying the message and/or data isn't supported when events are suppressed.</value>
+  </data>
+  <data name="InvalidMessageType" xml:space="preserve">
+    <value>The value '{0}' doesn't represent a valid message type.</value>
+  </data>
+  <data name="InvalidOrphanMappingBehavior" xml:space="preserve">
+    <value>The value '{0}' does not represent a valid orphan mapping behavior.</value>
+  </data>
+  <data name="InvalidProxyPropertyType" xml:space="preserve">
+    <value>Proxy properties must be of the type Nullable&lt;T&gt; where T is the type of the property that the proxy property is a proxy for (invalid class/property: {0}/{1}).</value>
+  </data>
+  <data name="InvalidSegmentType" xml:space="preserve">
+    <value>The run segment type '{0}' is not recognized.</value>
+  </data>
+  <data name="MergerReturnedNull" xml:space="preserve">
+    <value>The entity merger returned a null reference.</value>
+  </data>
+  <data name="MergerSetTrunkToNull" xml:space="preserve">
+    <value>The entity merger set the trunk version of the entity to a null reference.</value>
+  </data>
+  <data name="MultipleCacheFeedsDefinedForDestinationSystem" xml:space="preserve">
+    <value>Multiple cache feeds are defined for the destination system represented by '{0}'.</value>
+  </data>
+  <data name="MultipleCacheFeedsDefinedForEntityType" xml:space="preserve">
+    <value>Multiple cache feeds are defined for the '{0}' entity type.</value>
+  </data>
+  <data name="MultipleDestinationSystemCacheFeedsDefined" xml:space="preserve">
+    <value>Multiple cache feeds defined for the destination (external) system represented by '{0}'.</value>
+  </data>
+  <data name="MultipleDestinationSystemSinksDefined" xml:space="preserve">
+    <value>Multiple sinks defined for the destination (external) system represented by '{0}'.</value>
+  </data>
+  <data name="MultipleEntityTypeCacheFeedsDefined" xml:space="preserve">
+    <value>Multiple cache feeds defined for the entity type represented by '{0}'.</value>
+  </data>
+  <data name="MultipleEntityTypeSinksDefined" xml:space="preserve">
+    <value>Multiple sinks defined for the entity type represented by '{0}'.</value>
+  </data>
+  <data name="MultipleFeedsForEntityTypeSourceSystemDefined" xml:space="preserve">
+    <value>Multiple feeds are defined for the '{0}' entity type and the '{1}' source system.</value>
+  </data>
+  <data name="MultipleSinksDefinedForDestinationSystem" xml:space="preserve">
+    <value>Multiple sinks are defined for the destination system represented by '{0}'.</value>
+  </data>
+  <data name="MultipleSinksDefinedForEntityType" xml:space="preserve">
+    <value>Multiple sinks are defined for the '{0}' entity type.</value>
+  </data>
+  <data name="MultipleSourceSystemEntityTypeFeeds" xml:space="preserve">
+    <value>Multiple feeds exist for the source system represented by '{0}' and the '{1}' entity type.</value>
+  </data>
+  <data name="NoFeedAttributeForEntityType" xml:space="preserve">
+    <value>No attribute exists for the feed represented by '{0}' and the '{1}' entity type, nor is a default feed attribute specified.</value>
+  </data>
+  <data name="NoFeedSourceSystemForEntityType" xml:space="preserve">
+    <value>No source system is specified or inferable for the feed represented by '{0}' and the '{1}' entity type.</value>
+  </data>
+  <data name="NoSinkExistsForEntityType" xml:space="preserve">
+    <value>No sink exists for the '{0}' entity type.</value>
+  </data>
+  <data name="NoSinkTypeSpecified" xml:space="preserve">
+    <value>No sink type specified for the '{0}' entity type.</value>
+  </data>
+  <data name="OperationInProgress" xml:space="preserve">
+    <value>An operation is currently in progress.</value>
+  </data>
+  <data name="OperationNotInProgress" xml:space="preserve">
+    <value>No operation is currently in progress.</value>
+  </data>
+  <data name="PropertyMustBeReadable" xml:space="preserve">
+    <value>The property '{1}' (class: {0}) isn't readable.</value>
+  </data>
+  <data name="PropertyMustBeReadableAndWritable" xml:space="preserve">
+    <value>All entity properties and/or reference identifiers must be both readable and writable (invalid class/property: {0}/{1}).</value>
+  </data>
+  <data name="PropertyNotFound" xml:space="preserve">
+    <value>The property '{1}' could not be found (class: {0}).</value>
+  </data>
+  <data name="PropertyNotValueType" xml:space="preserve">
+    <value>Only value type properties can have nullable proxies (invalid class/property: {0}/{1}).</value>
+  </data>
+  <data name="RepositoryMethodReturnedEmptyParameterName" xml:space="preserve">
+    <value>The {0} repository method returned a blank parameter name.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidEntityMapping" xml:space="preserve">
+    <value>The entity mapping instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidEntityType" xml:space="preserve">
+    <value>The entity type instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidExternalSystem" xml:space="preserve">
+    <value>The external system instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidMappedEntityIdentifier" xml:space="preserve">
+    <value>The mapped entity identifier instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidParameter" xml:space="preserve">
+    <value>The parameter instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedInvalidSharedIdentifierSourceSystem" xml:space="preserve">
+    <value>The shared identifier source system instance returned by the {0} repository method isn't valid.</value>
+  </data>
+  <data name="RepositoryMethodReturnedNullParameterValue" xml:space="preserve">
+    <value>The {0} repository method returned a null reference parameter value.</value>
+  </data>
+  <data name="RepositoryMethodReturnedNullReference" xml:space="preserve">
+    <value>The {0} repository method returned a null reference.</value>
+  </data>
+  <data name="RepositoryMethodReturnedNullReferenceElement" xml:space="preserve">
+    <value>The {0} repository method returned a null reference collection element.</value>
+  </data>
+  <data name="RepositoryMethodThrewException" xml:space="preserve">
+    <value>The {0} repository method threw an exception.</value>
+  </data>
+  <data name="RunExceptionMessage" xml:space="preserve">
+    <value>An exception occurred during the run; see inner exception for details.</value>
+  </data>
+  <data name="RunNotFound" xml:space="preserve">
+    <value>The specified run ('{0}') could not be found in the specified configuration file; it may not exist or the name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="SerializerReturnedNull" xml:space="preserve">
+    <value>The serializer has returned a null reference.</value>
+  </data>
+  <data name="SharedIdentifierSourceSystemIdsMustBeUnique" xml:space="preserve">
+    <value>A source (external) system cannot share identifiers for an entity type with itself (source system IDs must be unique within each group of source sytems that share identifiers).</value>
+  </data>
+  <data name="SharedSourceSystemIdentifiersAttributeAppliedToInvalidType" xml:space="preserve">
+    <value>At least one SharedSourceSystemIdentifiersAttribute instance applied to a type that is neither an entity type nor an entity type definition.</value>
+  </data>
+  <data name="SinkNotFound" xml:space="preserve">
+    <value>The sink represented by type '{0}' could not be found; it may not exist or the type name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="SourceSystemCannotShareIdentifiersWithMultipleGroups" xml:space="preserve">
+    <value>Each source (external) system can only share identifiers for a given entity type with one group of external systems.</value>
+  </data>
+  <data name="SourceSystemCanOnlyShareIdentifiersWithOneGroup" xml:space="preserve">
+    <value>Each source (external) system can only share identifiers for a given entity type with one group of other systems. Duplicate combination (entity type ID/source system ID): {0:d}/{1:d}</value>
+  </data>
+  <data name="SourceSystemEntityIdChanged" xml:space="preserve">
+    <value>The source system entity ID returned by the metadata provider has changed from '{0}' to '{1}'.</value>
+  </data>
+  <data name="SourceSystemIdentifierPropertyNotFound" xml:space="preserve">
+    <value>The type '{0}' doesn't have the property that represents the source system identifier specified (apply the SourceSystemIdentifier attribute).</value>
+  </data>
+  <data name="SourceSystemIdNotFound" xml:space="preserve">
+    <value>The specified source system (ID = '{0:d}') could not be found.</value>
+  </data>
+  <data name="SourceSystemNotFound" xml:space="preserve">
+    <value>The specified source system ('{0}') could not be found; it may not exist or the name may be ambiguous; see inner exception for details.</value>
+  </data>
+  <data name="SourceSystemRequired" xml:space="preserve">
+    <value>The migration run segment type requires the source system to be set.</value>
+  </data>
+  <data name="TooFewSourceSystemsInGroup" xml:space="preserve">
+    <value>At least two source (external) systems must be specified for a group of systems that share entity identifiers.</value>
+  </data>
+  <data name="TypeCannotBeBothNonGenericAndGenericFeed" xml:space="preserve">
+    <value>The type '{0}' is both a non-generic feed and a generic feed.</value>
+  </data>
+  <data name="TypeDoesNotImplementInterface" xml:space="preserve">
+    <value>The type '{0}' does not implement the '{1}' interface.</value>
+  </data>
+  <data name="TypeDoesNotRepresentEntityType" xml:space="preserve">
+    <value>The type '{0}' does not represent an entity type.</value>
+  </data>
+  <data name="TypeDoesNotRepresentExternalSystem" xml:space="preserve">
+    <value>The type '{0}' does not represent an external system.</value>
+  </data>
+  <data name="TypeHasNoCompatibleEntityTypes" xml:space="preserve">
+    <value>No registered entity type is compatible with (i.e., assignable from) the specified CLR type ('{0}').</value>
+  </data>
+  <data name="TypeNotCacheFeed" xml:space="preserve">
+    <value>The type '{0}' does not represent a cache feed.</value>
+  </data>
+  <data name="TypeNotCacheFeedForEntityType" xml:space="preserve">
+    <value>The type '{0}' does not represent a cache feed for the '{1}' entity type.</value>
+  </data>
+  <data name="TypeNotFeed" xml:space="preserve">
+    <value>Type type '{0}' does not represent a feed.</value>
+  </data>
+  <data name="TypeNotFeedForEntityType" xml:space="preserve">
+    <value>The type '{0}' does not represent a feed for the '{1}' entity type.</value>
+  </data>
+  <data name="TypeNotSink" xml:space="preserve">
+    <value>The type '{0}' does not represent a sink.</value>
+  </data>
+  <data name="TypeNotSinkForEntityType" xml:space="preserve">
+    <value>The type '{0}' does not represent a sink for the '{1}' entity type.</value>
+  </data>
+  <data name="TypeNotValidForInterfaceExport" xml:space="preserve">
+    <value>The type '{0}' isn't valid for the export of the '{1}' interface.</value>
+  </data>
+  <data name="UnableToResolveReferenceIdentifier" xml:space="preserve">
+    <value>Unable to resolve reference identifier. (Property: {0}; Source System ID: '{1}')</value>
+  </data>
+</root>
