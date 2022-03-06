@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Synnduit.Engine\Synnduit.Engine.csproj" />
+    <ProjectReference Include="..\..\src\Synnduit.Engine\Synnduit.Engine.csproj" />
   </ItemGroup>
 
 </Project>
