@@ -79,6 +79,15 @@ namespace Synnduit.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The binary files directory path must be specified..
+        /// </summary>
+        internal static string BinaryFilesDirectoryPathMustBeSpecified {
+            get {
+                return ResourceManager.GetString("BinaryFilesDirectoryPathMustBeSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The cache feed represented by type &apos;{0}&apos; could not be found; it may not exist or the type name may be ambiguous; see inner exception for details..
         /// </summary>
         internal static string CacheFeedNotFound {

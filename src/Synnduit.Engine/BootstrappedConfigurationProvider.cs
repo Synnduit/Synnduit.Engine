@@ -36,7 +36,7 @@ namespace Synnduit
             this.applicationConfiguration.Value;
 
         private ApplicationConfiguration GetApplicationConfiguration() =>
-            this.configuration.Get<ApplicationConfiguration>()
+            this.configuration.GetSection("Synnduit").Get<ApplicationConfiguration>()
             ?? new ApplicationConfiguration();
     }
 }

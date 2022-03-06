@@ -123,6 +123,9 @@
   <data name="AmbiguousReferenceIdentifer" xml:space="preserve">
     <value>An ambiguous source system entity ID/destination system entity ID mapping detected in systems with shared identifiers when attempting to resolve the ID of a referenced entity. (Entity Type: '{0}', Property: '{1}', Source System ID: '{2}')</value>
   </data>
+  <data name="BinaryFilesDirectoryPathMustBeSpecified" xml:space="preserve">
+    <value>The binary files directory path must be specified.</value>
+  </data>
   <data name="CacheFeedNotFound" xml:space="preserve">
     <value>The cache feed represented by type '{0}' could not be found; it may not exist or the type name may be ambiguous; see inner exception for details.</value>
   </data>
