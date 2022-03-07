@@ -5,6 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Synnduit</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>0.2.0</Version>
+    <RepositoryUrl>https://github.com/Synnduit/Synnduit.Engine</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -12,8 +15,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
 
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Synnduit.Core" Version="1.0.0" />
-    <PackageReference Include="Synnduit.Persistence" Version="1.0.0" />
+    <PackageReference Include="Synnduit.Core" Version="0.2.0" />
+    <PackageReference Include="Synnduit.Persistence" Version="0.2.0" />
 
     <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
     <PackageReference Include="System.ComponentModel.Composition.Registration" Version="6.0.0" />

@@ -18,7 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.17.1" />
-    <PackageReference Include="Synnduit.TestHelper" Version="1.0.0" />
+    <PackageReference Include="Synnduit.TestHelper" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
