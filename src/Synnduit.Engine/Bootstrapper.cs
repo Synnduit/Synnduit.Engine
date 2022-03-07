@@ -77,16 +77,18 @@ namespace Synnduit
             {
                 CompositionContainer compositionContainer;
                 var catalog = new AggregateCatalog();
-                catalog.Catalogs.Add(new AssemblyCatalog(this.GetType().Assembly));
+                var registrationBuilder = this.CreateRegistrationBuilder();
+                catalog.Catalogs.Add(new AssemblyCatalog(
+                    this.GetType().Assembly, registrationBuilder));
                 foreach (var assembly in explicitAssemblies)
                 {
-                    catalog.Catalogs.Add(new AssemblyCatalog(assembly));
+                    catalog.Catalogs.Add(new AssemblyCatalog(assembly, registrationBuilder));
                 }
                 catalog.Catalogs.Add(new DirectoryCatalog(
                     configurationProvider.ApplicationConfiguration.BinaryFilesDirectoryPath ??
                     throw new InvalidOperationException(
                         Resources.BinaryFilesDirectoryPathMustBeSpecified),
-                    this.CreateRegistrationBuilder()));
+                    registrationBuilder));
                 compositionContainer = new CompositionContainer(catalog);
                 compositionContainer.ComposeParts();
                 compositionContainer
