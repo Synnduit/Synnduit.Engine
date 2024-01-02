@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using Synnduit.Events;
+﻿using Synnduit.Events;
 using Synnduit.Mappings;
 using Synnduit.Properties;
+using System.ComponentModel.Composition;
 
 namespace Synnduit
 {
@@ -30,6 +27,8 @@ namespace Synnduit
 
         private readonly IEventDispatcher<TEntity> eventDispatcher;
 
+        private readonly IExceptionHandler exceptionHandler;
+
         [ImportingConstructor]
         public MigrationSegmentRunner(
             IOperationExecutive operationExecutive,
@@ -38,7 +37,8 @@ namespace Synnduit
             IParameterProvider parameterProvider,
             IMappingRepository<TEntity> mappingRepository,
             IProcessor<TEntity> processor,
-            IEventDispatcher<TEntity> eventDispatcher)
+            IEventDispatcher<TEntity> eventDispatcher,
+            IExceptionHandler exceptionHandler)
         {
             this.operationExecutive = operationExecutive;
             this.serviceProvider = serviceProvider;
@@ -47,6 +47,7 @@ namespace Synnduit
             this.mappingRepository = mappingRepository;
             this.processor = processor;
             this.eventDispatcher = eventDispatcher;
+            this.exceptionHandler = exceptionHandler;
         }
 
         /// <summary>
@@ -56,8 +57,10 @@ namespace Synnduit
         {
             IEnumerable<TEntity> entities = this.LoadEntities();
             IDictionary<EntityIdentifier, IMapping<TEntity>> mappings = this.GetMappings();
+            int segmentExceptionCount = 0;
             foreach(TEntity entity in entities)
             {
+                EntityTransactionOutcome outcome;
                 using(IOperationScope scope = this.operationExecutive.CreateOperation())
                 {
                     if(entity == null)
@@ -65,10 +68,12 @@ namespace Synnduit
                         throw new InvalidOperationException(
                             Resources.FeedReturnedCollectionWithNullElement);
                     }
-                    this.Process(entity);
+                    outcome = this.Process(entity);
                     this.RemoveMapping(mappings, entity);
                     scope.Complete();
                 }
+                this.exceptionHandler.ProcessEntityTransactionOutcome(
+                    outcome, ref segmentExceptionCount);
             }
             this.ProcessOrphanMappings(mappings.Values);
         }
@@ -106,12 +111,13 @@ namespace Synnduit
             return mappings.ToDictionary(mapping => mapping.SourceSystemEntityId);
         }
 
-        private void Process(TEntity entity)
+        private EntityTransactionOutcome Process(TEntity entity)
         {
             this.eventDispatcher.Processing(new ProcessingArgs(
                 this.operationExecutive.CurrentOperation.TimeStamp, entity));
             IProcessedArgs<TEntity> processedArgs = this.processor.Process(entity);
             this.eventDispatcher.Processed(processedArgs);
+            return processedArgs.Outcome;
         }
 
         private void RemoveMapping(

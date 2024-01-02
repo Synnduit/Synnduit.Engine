@@ -158,6 +158,24 @@ namespace Synnduit.Events
         }
 
         /// <summary>
+        /// To be called when the run has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        public void RunAborted(IRunAbortedArgs args)
+        {
+            this.Dispatch(args);
+        }
+
+        /// <summary>
+        /// To be called when a run segment has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        public void SegmentAborted(ISegmentAbortedArgs args)
+        {
+            this.Dispatch(args);
+        }
+
+        /// <summary>
         /// To be called when a run segment has finished executing.
         /// </summary>
         /// <param name="args">The event data.</param>

@@ -55,6 +55,8 @@ namespace Synnduit
                     this.RunSegment(i + 1, segments.Length, runConfiguration, segments[i]);
                 }
             }
+            catch (RunExceptionThresholdReachedException)
+            { }
             catch (Exception exception)
             {
                 throw new SynnduitException(
@@ -113,7 +115,21 @@ namespace Synnduit
             ISegmentRunner segmentRunner = bridge.CreateSegmentRunner();
             bridge.EventDispatcher.SegmentExecuting(new SegmentExecutingArgs());
             invocableInitializer.Initialize(bridge.EventDispatcher);
-            segmentRunner.Run();
+            try
+            {
+                segmentRunner.Run();
+            }
+            catch (SegmentExceptionThresholdReachedException segmentThresholdException)
+            {
+                bridge.EventDispatcher.SegmentAborted(
+                    new SegmentAbortedArgs(segmentThresholdException.Threshold));
+            }
+            catch (RunExceptionThresholdReachedException runThresholdException)
+            {
+                bridge.EventDispatcher.RunAborted(
+                    new RunAbortedArgs(runThresholdException.Threshold));
+                throw;
+            }
             bridge.EventDispatcher.SegmentExecuted(new SegmentExecutedArgs());
         }
 
@@ -172,6 +188,30 @@ namespace Synnduit
                     string.Format(exceptionMessageFormat, name),
                     exception);
             }
+        }
+
+        private abstract class AbortedArgs : IAbortedArgs
+        {
+            protected AbortedArgs(int threshold)
+            {
+                this.Threshold = threshold;
+            }
+
+            public int Threshold { get; }
+        }
+
+        private class RunAbortedArgs : AbortedArgs, IRunAbortedArgs
+        {
+            public RunAbortedArgs(int threshold)
+                : base(threshold)
+            { }
+        }
+
+        private class SegmentAbortedArgs : AbortedArgs, ISegmentAbortedArgs
+        {
+            public SegmentAbortedArgs(int threshold)
+                : base(threshold)
+            { }
         }
 
         private class SegmentExecutingArgs : ISegmentExecutingArgs

@@ -97,6 +97,18 @@
         void OrphanMappingsProcessing(IOrphanMappingsProcessingArgs args);
 
         /// <summary>
+        /// To be called when the run has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void RunAborted(IRunAbortedArgs args);
+
+        /// <summary>
+        /// To be called when a run segment has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void SegmentAborted(ISegmentAbortedArgs args);
+
+        /// <summary>
         /// To be called when a run segment has finished executing.
         /// </summary>
         /// <param name="args">The event data.</param>

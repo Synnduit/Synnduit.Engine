@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using Synnduit.Events;
+﻿using Synnduit.Events;
 using Synnduit.Mappings;
 using Synnduit.Persistence;
+using System.ComponentModel.Composition;
 
 namespace Synnduit
 {
@@ -30,6 +27,8 @@ namespace Synnduit
 
         private readonly IEventDispatcher<TEntity> eventDispatcher;
 
+        private readonly IExceptionHandler exceptionHandler;
+
         private EntityIdentifier[] idsOfEntitiesToDelete;
 
         [ImportingConstructor]
@@ -40,6 +39,7 @@ namespace Synnduit
             IGateway<TEntity> gateway,
             ISafeRepository safeRepository,
             IEventDispatcher<TEntity> eventDispatcher,
+            IExceptionHandler exceptionHandler,
             IInitializer initializer)
         {
             this.context = context;
@@ -48,6 +48,7 @@ namespace Synnduit
             this.gateway = gateway;
             this.safeRepository = safeRepository;
             this.eventDispatcher = eventDispatcher;
+            this.exceptionHandler = exceptionHandler;
             this.idsOfEntitiesToDelete = null;
             initializer.Register(
                 new Initializer(this),
@@ -59,17 +60,21 @@ namespace Synnduit
         /// </summary>
         public void Run()
         {
+            int segmentExceptionCount = 0;
             foreach(EntityIdentifier id in this.idsOfEntitiesToDelete)
             {
+                EntityDeletionOutcome outcome;
                 using(IOperationScope scope = this.operationExecutive.CreateOperation())
                 {
-                    this.DeleteEntity(id);
+                    outcome = this.DeleteEntity(id);
                     scope.Complete();
                 }
+                this.exceptionHandler.ProcessEntityDeletionOutcome(
+                    outcome, ref segmentExceptionCount);
             }
         }
 
-        private void DeleteEntity(EntityIdentifier id)
+        private EntityDeletionOutcome DeleteEntity(EntityIdentifier id)
         {
             EntityDeletionOutcome outcome;
             Exception exceptionThrown = null;
@@ -94,6 +99,7 @@ namespace Synnduit
                 exceptionThrown = exception.InnerException;
             }
             this.RaiseDeletionProcessed(id, outcome, exceptionThrown);
+            return outcome;
         }
 
         private void RaiseDeletionProcessing(EntityIdentifier entityId)

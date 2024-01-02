@@ -15,6 +15,8 @@
 
         private LoggingConfiguration loggingConfiguration = null;
 
+        private ExceptionHandlingConfiguration exceptionHandlingConfiguration = null;
+
         private RunConfiguration[] runs = null;
 
         /// <summary>
@@ -49,6 +51,15 @@
         }
 
         /// <summary>
+        /// Gets the application's exception handling behavior configuration.
+        /// </summary>
+        public ExceptionHandlingConfiguration ExceptionHandling
+        {
+            get => this.exceptionHandlingConfiguration ?? new ExceptionHandlingConfiguration();
+            set => this.exceptionHandlingConfiguration = value;
+        }
+
+        /// <summary>
         /// Gets or sets the array of supported runs.
         /// </summary>
         public RunConfiguration[] Runs
@@ -58,6 +69,9 @@
         }
 
         ILoggingConfiguration IApplicationConfiguration.Logging => this.Logging;
+
+        IExceptionHandlingConfiguration IApplicationConfiguration.ExceptionHandling =>
+            this.ExceptionHandling;
 
         IEnumerable<IRunConfiguration> IApplicationConfiguration.Runs => this.Runs;
     }
