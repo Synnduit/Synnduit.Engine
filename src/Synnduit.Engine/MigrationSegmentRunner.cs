@@ -1,4 +1,5 @@
-﻿using Synnduit.Events;
+﻿using Synnduit.Configuration;
+using Synnduit.Events;
 using Synnduit.Mappings;
 using Synnduit.Properties;
 using System.ComponentModel.Composition;
@@ -13,6 +14,10 @@ namespace Synnduit
     internal class MigrationSegmentRunner<TEntity> : IMigrationSegmentRunner<TEntity>
         where TEntity : class
     {
+        private readonly IContext context;
+
+        private readonly IConfigurationProvider configurationProvider;
+
         private readonly IOperationExecutive operationExecutive;
 
         private readonly IServiceProvider<TEntity> serviceProvider;
@@ -31,6 +36,8 @@ namespace Synnduit
 
         [ImportingConstructor]
         public MigrationSegmentRunner(
+            IContext context,
+            IConfigurationProvider configurationProvider,
             IOperationExecutive operationExecutive,
             IServiceProvider<TEntity> serviceProvider,
             ISafeMetadataProvider<TEntity> safeMetadataProvider,
@@ -40,6 +47,8 @@ namespace Synnduit
             IEventDispatcher<TEntity> eventDispatcher,
             IExceptionHandler exceptionHandler)
         {
+            this.context = context;
+            this.configurationProvider = configurationProvider;
             this.operationExecutive = operationExecutive;
             this.serviceProvider = serviceProvider;
             this.safeMetadataProvider = safeMetadataProvider;
@@ -57,6 +66,7 @@ namespace Synnduit
         {
             IEnumerable<TEntity> entities = this.LoadEntities();
             IDictionary<EntityIdentifier, IMapping<TEntity>> mappings = this.GetMappings();
+            int overallMappingCount = mappings.Count;
             int segmentExceptionCount = 0;
             foreach(TEntity entity in entities)
             {
@@ -75,7 +85,7 @@ namespace Synnduit
                 this.exceptionHandler.ProcessEntityTransactionOutcome(
                     outcome, ref segmentExceptionCount);
             }
-            this.ProcessOrphanMappings(mappings.Values);
+            this.ProcessOrphanMappings(mappings.Values, overallMappingCount);
         }
 
         private IEnumerable<TEntity> LoadEntities()
@@ -129,7 +139,8 @@ namespace Synnduit
             mappings.Remove(sourceSystemEntityId);
         }
 
-        private void ProcessOrphanMappings(IEnumerable<IMapping<TEntity>> orphanMappings)
+        private void ProcessOrphanMappings(
+            IEnumerable<IMapping<TEntity>> orphanMappings, int overallMappingCount)
         {
             IMapping<TEntity>[] mappings = orphanMappings.ToArray();
             if(mappings.Length > 0)
@@ -137,6 +148,7 @@ namespace Synnduit
                 this.eventDispatcher.OrphanMappingsProcessing(
                     new OrphanMappingsProcessingArgs(
                         mappings.Length, this.parameterProvider.OrphanMappingBehavior));
+                VerifyOrphanMappingCountPercentageAbortThresholdNotExceeded();
                 MappingState targetState =
                     this
                     .parameterProvider
@@ -146,6 +158,27 @@ namespace Synnduit
                 foreach(IMapping<TEntity> mapping in mappings)
                 {
                     this.SetMappingState(mapping, targetState);
+                }
+            }
+
+            void VerifyOrphanMappingCountPercentageAbortThresholdNotExceeded()
+            {
+                double? threshold =
+                    this.context.SegmentConfiguration.OrphanMappingPercentageAbortThreshold
+                    ??
+                    this
+                    .configurationProvider
+                    .ApplicationConfiguration
+                    .ExceptionHandling
+                    .OrphanMappingPercentageAbortThreshold;
+                if (threshold.HasValue && mappings.Length > 0)
+                {
+                    double percentage = (double)mappings.Length / overallMappingCount;
+                    if (percentage >= threshold)
+                    {
+                        throw new OrphanMappingsProcessingAbortedException(
+                            (double)threshold, percentage);
+                    }
                 }
             }
         }

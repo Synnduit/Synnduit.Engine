@@ -66,6 +66,15 @@ namespace Synnduit.Events
         }
 
         /// <summary>
+        /// To be called when a garbage collection run segment has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        public void GarbageCollectionAborted(IGarbageCollectionAbortedArgs args)
+        {
+            this.Dispatch(args);
+        }
+
+        /// <summary>
         /// To be called when a garbage collection run segment has been initialized.
         /// </summary>
         /// <param name="args">The event data.</param>
@@ -153,6 +162,15 @@ namespace Synnduit.Events
         /// </summary>
         /// <param name="args">The event data.</param>
         public void OrphanMappingsProcessing(IOrphanMappingsProcessingArgs args)
+        {
+            this.Dispatch(args);
+        }
+
+        /// <summary>
+        /// To be called when the processing of orphan mappings has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        public void OrphanMappingsProcessingAborted(IOrphanMappingsProcessingAbortedArgs args)
         {
             this.Dispatch(args);
         }

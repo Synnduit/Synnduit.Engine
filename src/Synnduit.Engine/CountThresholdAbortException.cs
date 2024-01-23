@@ -1,12 +1,11 @@
 ﻿namespace Synnduit
 {
     /// <summary>
-    /// The base class for exceptions thrown when the configurable exception threshold to abort a
-    /// segment/the run is reached.
+    /// The base class for exceptions thrown when count threshold-based aborts are triggered.
     /// </summary>
-    internal abstract class ThresholdReachedException : Exception
+    internal abstract class CountThresholdAbortException : Exception
     {
-        protected ThresholdReachedException(int threshold)
+        protected CountThresholdAbortException(int threshold)
         {
             this.Threshold = threshold;
         }

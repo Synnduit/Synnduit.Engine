@@ -15,6 +15,7 @@ namespace Synnduit
 
         private readonly IConfigurationProvider configurationProvider;
 
+        [ImportingConstructor]
         public ExceptionHandler(IContext context, IConfigurationProvider configurationProvider)
         {
             this.context = context;
@@ -57,35 +58,31 @@ namespace Synnduit
 
         private void HandleException(ref int segmentExceptionCount)
         {
-            segmentExceptionCount++;
             int runExceptionCount = IncrementRunExceptionCount();
-            if (segmentExceptionCount >=
-                this
-                .configurationProvider
-                .ApplicationConfiguration
-                .ExceptionHandling
-                .PerSegmentAbortThreshold)
-            {
-                throw new SegmentExceptionThresholdReachedException((int)
-                    this
-                    .configurationProvider
-                    .ApplicationConfiguration
-                    .ExceptionHandling
-                    .PerSegmentAbortThreshold);
-            }
+            segmentExceptionCount++;
             if (runExceptionCount >=
                 this
                 .configurationProvider
                 .ApplicationConfiguration
                 .ExceptionHandling
-                .PerRunAbortThreshold)
+                .RunAbortThreshold)
             {
-                throw new SegmentExceptionThresholdReachedException((int)
+                throw new RunExceptionThresholdReachedException((int)
                     this
                     .configurationProvider
                     .ApplicationConfiguration
                     .ExceptionHandling
-                    .PerRunAbortThreshold);
+                    .RunAbortThreshold);
+            }
+            int? segmentAbortThreshold =
+                this.context.SegmentConfiguration.SegmentAbortThreshold ??
+                this.configurationProvider
+                    .ApplicationConfiguration
+                    .ExceptionHandling
+                    .SegmentAbortThreshold;
+            if (segmentExceptionCount >= segmentAbortThreshold)
+            {
+                throw new SegmentExceptionThresholdReachedException((int)segmentAbortThreshold);
             }
 
             int IncrementRunExceptionCount()

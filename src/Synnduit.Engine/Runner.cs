@@ -119,10 +119,28 @@ namespace Synnduit
             {
                 segmentRunner.Run();
             }
+            catch (OrphanMappingsProcessingAbortedException
+                orphanMappingsProcessingAbortedException)
+            {
+                bridge.EventDispatcher.OrphanMappingsProcessingAborted(
+                    new OrphanMappingsProcessingAbortedArgs(
+                        orphanMappingsProcessingAbortedException.Threshold,
+                        orphanMappingsProcessingAbortedException.Percentage));
+                return;
+            }
+            catch (GarbageCollectionAbortedException garbageCollectionAbortedException)
+            {
+                bridge.EventDispatcher.GarbageCollectionAborted(
+                    new GarbageCollectionAbortedArgs(
+                        garbageCollectionAbortedException.Threshold,
+                        garbageCollectionAbortedException.Percentage));
+                return;
+            }
             catch (SegmentExceptionThresholdReachedException segmentThresholdException)
             {
                 bridge.EventDispatcher.SegmentAborted(
                     new SegmentAbortedArgs(segmentThresholdException.Threshold));
+                return;
             }
             catch (RunExceptionThresholdReachedException runThresholdException)
             {
@@ -190,9 +208,38 @@ namespace Synnduit
             }
         }
 
-        private abstract class AbortedArgs : IAbortedArgs
+        private abstract class PercentageThresholdAbortedArgs
         {
-            protected AbortedArgs(int threshold)
+            protected PercentageThresholdAbortedArgs(double threshold, double percentage)
+            {
+                this.Threshold = threshold;
+                this.Percentage = percentage;
+            }
+
+            public double Threshold { get; }
+
+            public double Percentage { get; }
+        }
+
+        private class OrphanMappingsProcessingAbortedArgs :
+            PercentageThresholdAbortedArgs, IOrphanMappingsProcessingAbortedArgs
+        {
+            public OrphanMappingsProcessingAbortedArgs(double threshold, double percentage)
+                : base(threshold, percentage)
+            { }
+        }
+
+        private class GarbageCollectionAbortedArgs :
+            PercentageThresholdAbortedArgs, IGarbageCollectionAbortedArgs
+        {
+            public GarbageCollectionAbortedArgs(double threshold, double percentage)
+                : base(threshold, percentage)
+            { }
+        }
+
+        private abstract class CountThresholdAbortedArgs : ICountThresholdAbortedArgs
+        {
+            protected CountThresholdAbortedArgs(int threshold)
             {
                 this.Threshold = threshold;
             }
@@ -200,14 +247,14 @@ namespace Synnduit
             public int Threshold { get; }
         }
 
-        private class RunAbortedArgs : AbortedArgs, IRunAbortedArgs
+        private class RunAbortedArgs : CountThresholdAbortedArgs, IRunAbortedArgs
         {
             public RunAbortedArgs(int threshold)
                 : base(threshold)
             { }
         }
 
-        private class SegmentAbortedArgs : AbortedArgs, ISegmentAbortedArgs
+        private class SegmentAbortedArgs : CountThresholdAbortedArgs, ISegmentAbortedArgs
         {
             public SegmentAbortedArgs(int threshold)
                 : base(threshold)

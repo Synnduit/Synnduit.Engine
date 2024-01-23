@@ -91,7 +91,7 @@ namespace Synnduit
             {
                 initializableInstance.Instance.Initialize(context);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new InvalidOperationException(
                     Resources.InitializableThrewException, exception);
