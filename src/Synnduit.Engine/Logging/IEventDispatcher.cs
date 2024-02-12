@@ -35,6 +35,12 @@
         void DeletionProcessing(IDeletionProcessingArgs args);
 
         /// <summary>
+        /// To be called when a garbage collection run segment has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void GarbageCollectionAborted(IGarbageCollectionAbortedArgs args);
+
+        /// <summary>
         /// To be called when a garbage collection run segment has been initialized.
         /// </summary>
         /// <param name="args">The event data.</param>
@@ -95,6 +101,24 @@
         /// </summary>
         /// <param name="args">The event data.</param>
         void OrphanMappingsProcessing(IOrphanMappingsProcessingArgs args);
+
+        /// <summary>
+        /// To be called when the processing of orphan mappings has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void OrphanMappingsProcessingAborted(IOrphanMappingsProcessingAbortedArgs args);
+
+        /// <summary>
+        /// To be called when the run has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void RunAborted(IRunAbortedArgs args);
+
+        /// <summary>
+        /// To be called when a run segment has been aborted.
+        /// </summary>
+        /// <param name="args">The event data.</param>
+        void SegmentAborted(ISegmentAbortedArgs args);
 
         /// <summary>
         /// To be called when a run segment has finished executing.

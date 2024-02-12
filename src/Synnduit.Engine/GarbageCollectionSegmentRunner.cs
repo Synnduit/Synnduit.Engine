@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
+﻿using Synnduit.Configuration;
 using Synnduit.Events;
 using Synnduit.Mappings;
 using Synnduit.Persistence;
+using System.ComponentModel.Composition;
 
 namespace Synnduit
 {
@@ -20,6 +18,8 @@ namespace Synnduit
     {
         private readonly IContext context;
 
+        private readonly IConfigurationProvider configurationProvider;
+
         private readonly IParameterProvider parameterProvider;
 
         private readonly IOperationExecutive operationExecutive;
@@ -30,25 +30,34 @@ namespace Synnduit
 
         private readonly IEventDispatcher<TEntity> eventDispatcher;
 
+        private readonly IExceptionHandler exceptionHandler;
+
         private EntityIdentifier[] idsOfEntitiesToDelete;
+
+        private int destinationSystemEntityCount;
 
         [ImportingConstructor]
         public GarbageCollectionSegmentRunner(
             IContext context,
+            IConfigurationProvider configurationProvider,
             IParameterProvider parameterProvider,
             IOperationExecutive operationExecutive,
             IGateway<TEntity> gateway,
             ISafeRepository safeRepository,
             IEventDispatcher<TEntity> eventDispatcher,
+            IExceptionHandler exceptionHandler,
             IInitializer initializer)
         {
             this.context = context;
+            this.configurationProvider = configurationProvider;
             this.parameterProvider = parameterProvider;
             this.operationExecutive = operationExecutive;
             this.gateway = gateway;
             this.safeRepository = safeRepository;
             this.eventDispatcher = eventDispatcher;
+            this.exceptionHandler = exceptionHandler;
             this.idsOfEntitiesToDelete = null;
+            this.destinationSystemEntityCount = 0;
             initializer.Register(
                 new Initializer(this),
                 suppressEvents: true);
@@ -59,17 +68,43 @@ namespace Synnduit
         /// </summary>
         public void Run()
         {
+            VerifyGarbageCollectionPercentageAbortThresholdNotExceeded();
+            int segmentExceptionCount = 0;
             foreach(EntityIdentifier id in this.idsOfEntitiesToDelete)
             {
+                EntityDeletionOutcome outcome;
                 using(IOperationScope scope = this.operationExecutive.CreateOperation())
                 {
-                    this.DeleteEntity(id);
+                    outcome = this.DeleteEntity(id);
                     scope.Complete();
+                }
+                this.exceptionHandler.ProcessEntityDeletionOutcome(
+                    outcome, ref segmentExceptionCount);
+            }
+
+            void VerifyGarbageCollectionPercentageAbortThresholdNotExceeded()
+            {
+                double? threshold =
+                    this.context.SegmentConfiguration.GarbageCollectionPercentageAbortThreshold
+                    ??
+                    this
+                    .configurationProvider
+                    .ApplicationConfiguration
+                    .ExceptionHandling
+                    .GarbageCollectionPercentageAbortThreshold;
+                if (threshold.HasValue && this.destinationSystemEntityCount > 0)
+                {
+                    double percentage =
+                        (double)idsOfEntitiesToDelete.Length / this.destinationSystemEntityCount;
+                    if (percentage >= (double)threshold)
+                    {
+                        throw new GarbageCollectionAbortedException((double)threshold, percentage);
+                    }
                 }
             }
         }
 
-        private void DeleteEntity(EntityIdentifier id)
+        private EntityDeletionOutcome DeleteEntity(EntityIdentifier id)
         {
             EntityDeletionOutcome outcome;
             Exception exceptionThrown = null;
@@ -94,6 +129,7 @@ namespace Synnduit
                 exceptionThrown = exception.InnerException;
             }
             this.RaiseDeletionProcessed(id, outcome, exceptionThrown);
+            return outcome;
         }
 
         private void RaiseDeletionProcessing(EntityIdentifier entityId)
@@ -142,7 +178,10 @@ namespace Synnduit
                     .eventDispatcher
                     .GarbageCollectionInitializing(
                         new GarbageCollectionInitializingArgs());
-                this.parent.idsOfEntitiesToDelete = this.GetIdsOfEntitiesToDelete();
+                var (idsOfEntitiesToDelete, destinationSystemEntityCount) =
+                    this.GetIdsOfEntitiesToDelete();
+                this.parent.idsOfEntitiesToDelete = idsOfEntitiesToDelete;
+                this.parent.destinationSystemEntityCount = destinationSystemEntityCount;
                 this.parent
                     .eventDispatcher
                     .GarbageCollectionInitialized(
@@ -150,11 +189,11 @@ namespace Synnduit
                             this.parent.idsOfEntitiesToDelete.Length));
             }
 
-            private EntityIdentifier[] GetIdsOfEntitiesToDelete()
+            private (EntityIdentifier[], int) GetIdsOfEntitiesToDelete()
             {
                 IEnumerable<EntityIdentifier> idsOfEntitiesToDelete;
-                IEnumerable<EntityIdentifier>
-                    destinationSystemIds = this.parent.gateway.GetEntityIdentifiers();
+                EntityIdentifier[] destinationSystemIds =
+                    this.parent.gateway.GetEntityIdentifiers().ToArray();
                 MappingEntityIdentifiers mappingEntityIdentifiers
                     = this.GetMappingEntityIdentifiers();
                 switch(this.parent.parameterProvider.GarbageCollectionBehavior)
@@ -181,7 +220,7 @@ namespace Synnduit
                         idsOfEntitiesToDelete = new EntityIdentifier[0];
                         break;
                 }
-                return idsOfEntitiesToDelete.ToArray();
+                return (idsOfEntitiesToDelete.ToArray(), destinationSystemIds.Length);
             }
 
             private MappingEntityIdentifiers GetMappingEntityIdentifiers()

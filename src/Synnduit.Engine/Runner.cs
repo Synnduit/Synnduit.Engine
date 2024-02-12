@@ -55,6 +55,8 @@ namespace Synnduit
                     this.RunSegment(i + 1, segments.Length, runConfiguration, segments[i]);
                 }
             }
+            catch (RunExceptionThresholdReachedException)
+            { }
             catch (Exception exception)
             {
                 throw new SynnduitException(
@@ -113,7 +115,39 @@ namespace Synnduit
             ISegmentRunner segmentRunner = bridge.CreateSegmentRunner();
             bridge.EventDispatcher.SegmentExecuting(new SegmentExecutingArgs());
             invocableInitializer.Initialize(bridge.EventDispatcher);
-            segmentRunner.Run();
+            try
+            {
+                segmentRunner.Run();
+            }
+            catch (OrphanMappingsProcessingAbortedException
+                orphanMappingsProcessingAbortedException)
+            {
+                bridge.EventDispatcher.OrphanMappingsProcessingAborted(
+                    new OrphanMappingsProcessingAbortedArgs(
+                        orphanMappingsProcessingAbortedException.Threshold,
+                        orphanMappingsProcessingAbortedException.Percentage));
+                return;
+            }
+            catch (GarbageCollectionAbortedException garbageCollectionAbortedException)
+            {
+                bridge.EventDispatcher.GarbageCollectionAborted(
+                    new GarbageCollectionAbortedArgs(
+                        garbageCollectionAbortedException.Threshold,
+                        garbageCollectionAbortedException.Percentage));
+                return;
+            }
+            catch (SegmentExceptionThresholdReachedException segmentThresholdException)
+            {
+                bridge.EventDispatcher.SegmentAborted(
+                    new SegmentAbortedArgs(segmentThresholdException.Threshold));
+                return;
+            }
+            catch (RunExceptionThresholdReachedException runThresholdException)
+            {
+                bridge.EventDispatcher.RunAborted(
+                    new RunAbortedArgs(runThresholdException.Threshold));
+                throw;
+            }
             bridge.EventDispatcher.SegmentExecuted(new SegmentExecutedArgs());
         }
 
@@ -172,6 +206,59 @@ namespace Synnduit
                     string.Format(exceptionMessageFormat, name),
                     exception);
             }
+        }
+
+        private abstract class PercentageThresholdAbortedArgs
+        {
+            protected PercentageThresholdAbortedArgs(double threshold, double percentage)
+            {
+                this.Threshold = threshold;
+                this.Percentage = percentage;
+            }
+
+            public double Threshold { get; }
+
+            public double Percentage { get; }
+        }
+
+        private class OrphanMappingsProcessingAbortedArgs :
+            PercentageThresholdAbortedArgs, IOrphanMappingsProcessingAbortedArgs
+        {
+            public OrphanMappingsProcessingAbortedArgs(double threshold, double percentage)
+                : base(threshold, percentage)
+            { }
+        }
+
+        private class GarbageCollectionAbortedArgs :
+            PercentageThresholdAbortedArgs, IGarbageCollectionAbortedArgs
+        {
+            public GarbageCollectionAbortedArgs(double threshold, double percentage)
+                : base(threshold, percentage)
+            { }
+        }
+
+        private abstract class CountThresholdAbortedArgs : ICountThresholdAbortedArgs
+        {
+            protected CountThresholdAbortedArgs(int threshold)
+            {
+                this.Threshold = threshold;
+            }
+
+            public int Threshold { get; }
+        }
+
+        private class RunAbortedArgs : CountThresholdAbortedArgs, IRunAbortedArgs
+        {
+            public RunAbortedArgs(int threshold)
+                : base(threshold)
+            { }
+        }
+
+        private class SegmentAbortedArgs : CountThresholdAbortedArgs, ISegmentAbortedArgs
+        {
+            public SegmentAbortedArgs(int threshold)
+                : base(threshold)
+            { }
         }
 
         private class SegmentExecutingArgs : ISegmentExecutingArgs

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
+﻿using Synnduit.Configuration;
 using Synnduit.Events;
 using Synnduit.Mappings;
 using Synnduit.Properties;
+using System.ComponentModel.Composition;
 
 namespace Synnduit
 {
@@ -16,6 +14,10 @@ namespace Synnduit
     internal class MigrationSegmentRunner<TEntity> : IMigrationSegmentRunner<TEntity>
         where TEntity : class
     {
+        private readonly IContext context;
+
+        private readonly IConfigurationProvider configurationProvider;
+
         private readonly IOperationExecutive operationExecutive;
 
         private readonly IServiceProvider<TEntity> serviceProvider;
@@ -30,16 +32,23 @@ namespace Synnduit
 
         private readonly IEventDispatcher<TEntity> eventDispatcher;
 
+        private readonly IExceptionHandler exceptionHandler;
+
         [ImportingConstructor]
         public MigrationSegmentRunner(
+            IContext context,
+            IConfigurationProvider configurationProvider,
             IOperationExecutive operationExecutive,
             IServiceProvider<TEntity> serviceProvider,
             ISafeMetadataProvider<TEntity> safeMetadataProvider,
             IParameterProvider parameterProvider,
             IMappingRepository<TEntity> mappingRepository,
             IProcessor<TEntity> processor,
-            IEventDispatcher<TEntity> eventDispatcher)
+            IEventDispatcher<TEntity> eventDispatcher,
+            IExceptionHandler exceptionHandler)
         {
+            this.context = context;
+            this.configurationProvider = configurationProvider;
             this.operationExecutive = operationExecutive;
             this.serviceProvider = serviceProvider;
             this.safeMetadataProvider = safeMetadataProvider;
@@ -47,6 +56,7 @@ namespace Synnduit
             this.mappingRepository = mappingRepository;
             this.processor = processor;
             this.eventDispatcher = eventDispatcher;
+            this.exceptionHandler = exceptionHandler;
         }
 
         /// <summary>
@@ -56,8 +66,11 @@ namespace Synnduit
         {
             IEnumerable<TEntity> entities = this.LoadEntities();
             IDictionary<EntityIdentifier, IMapping<TEntity>> mappings = this.GetMappings();
+            int overallMappingCount = mappings.Count;
+            int segmentExceptionCount = 0;
             foreach(TEntity entity in entities)
             {
+                EntityTransactionOutcome outcome;
                 using(IOperationScope scope = this.operationExecutive.CreateOperation())
                 {
                     if(entity == null)
@@ -65,12 +78,14 @@ namespace Synnduit
                         throw new InvalidOperationException(
                             Resources.FeedReturnedCollectionWithNullElement);
                     }
-                    this.Process(entity);
+                    outcome = this.Process(entity);
                     this.RemoveMapping(mappings, entity);
                     scope.Complete();
                 }
+                this.exceptionHandler.ProcessEntityTransactionOutcome(
+                    outcome, ref segmentExceptionCount);
             }
-            this.ProcessOrphanMappings(mappings.Values);
+            this.ProcessOrphanMappings(mappings.Values, overallMappingCount);
         }
 
         private IEnumerable<TEntity> LoadEntities()
@@ -106,12 +121,13 @@ namespace Synnduit
             return mappings.ToDictionary(mapping => mapping.SourceSystemEntityId);
         }
 
-        private void Process(TEntity entity)
+        private EntityTransactionOutcome Process(TEntity entity)
         {
             this.eventDispatcher.Processing(new ProcessingArgs(
                 this.operationExecutive.CurrentOperation.TimeStamp, entity));
             IProcessedArgs<TEntity> processedArgs = this.processor.Process(entity);
             this.eventDispatcher.Processed(processedArgs);
+            return processedArgs.Outcome;
         }
 
         private void RemoveMapping(
@@ -123,7 +139,8 @@ namespace Synnduit
             mappings.Remove(sourceSystemEntityId);
         }
 
-        private void ProcessOrphanMappings(IEnumerable<IMapping<TEntity>> orphanMappings)
+        private void ProcessOrphanMappings(
+            IEnumerable<IMapping<TEntity>> orphanMappings, int overallMappingCount)
         {
             IMapping<TEntity>[] mappings = orphanMappings.ToArray();
             if(mappings.Length > 0)
@@ -131,6 +148,7 @@ namespace Synnduit
                 this.eventDispatcher.OrphanMappingsProcessing(
                     new OrphanMappingsProcessingArgs(
                         mappings.Length, this.parameterProvider.OrphanMappingBehavior));
+                VerifyOrphanMappingCountPercentageAbortThresholdNotExceeded();
                 MappingState targetState =
                     this
                     .parameterProvider
@@ -140,6 +158,27 @@ namespace Synnduit
                 foreach(IMapping<TEntity> mapping in mappings)
                 {
                     this.SetMappingState(mapping, targetState);
+                }
+            }
+
+            void VerifyOrphanMappingCountPercentageAbortThresholdNotExceeded()
+            {
+                double? threshold =
+                    this.context.SegmentConfiguration.OrphanMappingPercentageAbortThreshold
+                    ??
+                    this
+                    .configurationProvider
+                    .ApplicationConfiguration
+                    .ExceptionHandling
+                    .OrphanMappingPercentageAbortThreshold;
+                if (threshold.HasValue && mappings.Length > 0)
+                {
+                    double percentage = (double)mappings.Length / overallMappingCount;
+                    if (percentage >= threshold)
+                    {
+                        throw new OrphanMappingsProcessingAbortedException(
+                            (double)threshold, percentage);
+                    }
                 }
             }
         }
