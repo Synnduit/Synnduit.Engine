@@ -166,18 +166,27 @@ namespace Synnduit
                 double? threshold =
                     this.context.SegmentConfiguration.OrphanMappingPercentageAbortThreshold
                     ??
-                    this
-                    .configurationProvider
-                    .ApplicationConfiguration
-                    .ExceptionHandling
-                    .OrphanMappingPercentageAbortThreshold;
+                    this.configurationProvider
+                        .ApplicationConfiguration
+                        .ExceptionHandling
+                        .OrphanMappingPercentageAbortThreshold;
                 if (threshold.HasValue && mappings.Length > 0)
                 {
                     double percentage = (double)mappings.Length / overallMappingCount;
                     if (percentage >= threshold)
                     {
                         throw new OrphanMappingsProcessingAbortedException(
-                            (double)threshold, percentage);
+                            (double)threshold,
+                            percentage,
+                            this.context
+                                .SegmentConfiguration
+                                .OrphanMappingPercentageThresholdAbortsRun
+                            ??
+                            this.configurationProvider
+                                .ApplicationConfiguration
+                                .ExceptionHandling
+                                .OrphanMappingPercentageThresholdAbortsRun
+                                .GetValueOrDefault(false));
                     }
                 }
             }

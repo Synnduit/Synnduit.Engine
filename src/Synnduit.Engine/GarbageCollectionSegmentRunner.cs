@@ -87,18 +87,28 @@ namespace Synnduit
                 double? threshold =
                     this.context.SegmentConfiguration.GarbageCollectionPercentageAbortThreshold
                     ??
-                    this
-                    .configurationProvider
-                    .ApplicationConfiguration
-                    .ExceptionHandling
-                    .GarbageCollectionPercentageAbortThreshold;
+                    this.configurationProvider
+                        .ApplicationConfiguration
+                        .ExceptionHandling
+                        .GarbageCollectionPercentageAbortThreshold;
                 if (threshold.HasValue && this.destinationSystemEntityCount > 0)
                 {
                     double percentage =
                         (double)idsOfEntitiesToDelete.Length / this.destinationSystemEntityCount;
                     if (percentage >= (double)threshold)
                     {
-                        throw new GarbageCollectionAbortedException((double)threshold, percentage);
+                        throw new GarbageCollectionAbortedException(
+                            (double)threshold,
+                            percentage,
+                            this.context
+                                .SegmentConfiguration
+                                .GarbageCollectionPercentageThresholdAbortsRun
+                            ??
+                            this.configurationProvider
+                                .ApplicationConfiguration
+                                .ExceptionHandling
+                                .GarbageCollectionPercentageThresholdAbortsRun
+                                .GetValueOrDefault(false));
                     }
                 }
             }

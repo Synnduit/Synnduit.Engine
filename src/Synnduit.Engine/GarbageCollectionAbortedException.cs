@@ -6,8 +6,9 @@
     /// </summary>
     internal class GarbageCollectionAbortedException : PercentageThresholdAbortException
     {
-        public GarbageCollectionAbortedException(double threshold, double percentage)
-            : base(threshold, percentage)
+        public GarbageCollectionAbortedException(
+            double threshold, double percentage, bool abortRun)
+            : base(threshold, percentage, abortRun)
         { }
     }
 }

@@ -7,8 +7,9 @@
     /// </summary>
     internal class OrphanMappingsProcessingAbortedException : PercentageThresholdAbortException
     {
-        public OrphanMappingsProcessingAbortedException(double threshold, double percentage)
-            : base(threshold, percentage)
+        public OrphanMappingsProcessingAbortedException(
+            double threshold, double percentage, bool abortRun)
+            : base(threshold, percentage, abortRun)
         { }
     }
 }

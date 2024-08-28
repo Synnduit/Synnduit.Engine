@@ -55,6 +55,10 @@ namespace Synnduit
                     this.RunSegment(i + 1, segments.Length, runConfiguration, segments[i]);
                 }
             }
+            catch (OrphanMappingsProcessingAbortedException)
+            { }
+            catch (GarbageCollectionAbortedException)
+            { }
             catch (RunExceptionThresholdReachedException)
             { }
             catch (Exception exception)
@@ -125,16 +129,32 @@ namespace Synnduit
                 bridge.EventDispatcher.OrphanMappingsProcessingAborted(
                     new OrphanMappingsProcessingAbortedArgs(
                         orphanMappingsProcessingAbortedException.Threshold,
-                        orphanMappingsProcessingAbortedException.Percentage));
-                return;
+                        orphanMappingsProcessingAbortedException.Percentage,
+                        orphanMappingsProcessingAbortedException.AbortRun));
+                if (orphanMappingsProcessingAbortedException.AbortRun)
+                {
+                    throw;
+                }
+                else
+                {
+                    return;
+                }
             }
             catch (GarbageCollectionAbortedException garbageCollectionAbortedException)
             {
                 bridge.EventDispatcher.GarbageCollectionAborted(
                     new GarbageCollectionAbortedArgs(
                         garbageCollectionAbortedException.Threshold,
-                        garbageCollectionAbortedException.Percentage));
-                return;
+                        garbageCollectionAbortedException.Percentage,
+                        garbageCollectionAbortedException.AbortRun));
+                if (garbageCollectionAbortedException.AbortRun)
+                {
+                    throw;
+                }
+                else
+                {
+                    return;
+                }
             }
             catch (SegmentExceptionThresholdReachedException segmentThresholdException)
             {
@@ -210,30 +230,36 @@ namespace Synnduit
 
         private abstract class PercentageThresholdAbortedArgs
         {
-            protected PercentageThresholdAbortedArgs(double threshold, double percentage)
+            protected PercentageThresholdAbortedArgs(
+                double threshold, double percentage, bool runAborted)
             {
                 this.Threshold = threshold;
                 this.Percentage = percentage;
+                this.RunAborted = runAborted;
             }
 
             public double Threshold { get; }
 
             public double Percentage { get; }
+
+            public bool RunAborted { get; }
         }
 
         private class OrphanMappingsProcessingAbortedArgs :
             PercentageThresholdAbortedArgs, IOrphanMappingsProcessingAbortedArgs
         {
-            public OrphanMappingsProcessingAbortedArgs(double threshold, double percentage)
-                : base(threshold, percentage)
+            public OrphanMappingsProcessingAbortedArgs(
+                double threshold, double percentage, bool runAborted)
+                : base(threshold, percentage, runAborted)
             { }
         }
 
         private class GarbageCollectionAbortedArgs :
             PercentageThresholdAbortedArgs, IGarbageCollectionAbortedArgs
         {
-            public GarbageCollectionAbortedArgs(double threshold, double percentage)
-                : base(threshold, percentage)
+            public GarbageCollectionAbortedArgs(
+                double threshold, double percentage, bool runAborted)
+                : base(threshold, percentage, runAborted)
             { }
         }
 
