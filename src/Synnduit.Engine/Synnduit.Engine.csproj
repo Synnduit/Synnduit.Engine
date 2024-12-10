@@ -16,7 +16,7 @@
 
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Synnduit.Core" Version="0.9.0" />
-    <PackageReference Include="Synnduit.Persistence" Version="0.8.0" />
+    <PackageReference Include="Synnduit.Persistence" Version="0.9.0" />
 
     <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
     <PackageReference Include="System.ComponentModel.Composition.Registration" Version="8.0.0" />
