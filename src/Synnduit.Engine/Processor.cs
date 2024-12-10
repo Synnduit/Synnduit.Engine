@@ -302,7 +302,10 @@ namespace Synnduit
         private ValueChange[] Merge(TEntity previous = null)
         {
             var mergerEntity = new MergerEntity(
-                this.DestinationSystemEntity, previous, this.SourceSystemEntity);
+                this.DestinationSystemEntity,
+                previous,
+                this.SourceSystemEntity,
+                this.context.SourceSystem.Id);
             IEnumerable<ValueChange> valueChanges =
                 this.serviceProvider.Merger.Merge(mergerEntity);
             if(valueChanges == null)
@@ -477,28 +480,25 @@ namespace Synnduit
 
         private class MergerEntity : IMergerEntity<TEntity>
         {
-            private readonly TEntity previous;
-
-            private readonly TEntity current;
-
-            public MergerEntity(TEntity trunk, TEntity previous, TEntity current)
+            public MergerEntity(
+                TEntity trunk,
+                TEntity previous,
+                TEntity current,
+                Guid sourceSystemId)
             {
                 this.Trunk = trunk;
-                this.previous = previous;
-                this.current = current;
+                this.Previous = previous;
+                this.Current = current;
+                this.SourceSystemId = sourceSystemId;
             }
 
             public TEntity Trunk { get; set; }
 
-            public TEntity Previous
-            {
-                get { return this.previous; }
-            }
+            public TEntity Previous { get; }
 
-            public TEntity Current
-            {
-                get { return this.current; }
-            }
+            public TEntity Current { get; }
+
+            public Guid SourceSystemId { get; }
         }
 
         private class SerializedEntity : ISerializedEntity

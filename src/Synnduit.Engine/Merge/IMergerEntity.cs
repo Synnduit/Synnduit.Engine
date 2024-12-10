@@ -27,5 +27,10 @@
         /// Gets the current version of the entity from the source system.
         /// </summary>
         TEntity Current { get; }
+
+        /// <summary>
+        /// Gets the ID of the entity's source system.
+        /// </summary>
+        Guid SourceSystemId { get; }
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Synnduit.Deduplication;
+using Synnduit.Deployment;
+using Synnduit.Properties;
 using System.ComponentModel.Composition;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Synnduit.Deduplication;
-using Synnduit.Properties;
 
 namespace Synnduit
 {
@@ -21,15 +19,23 @@ namespace Synnduit
     internal class MetadataParser<TEntity> : IMetadataParser<TEntity>
         where TEntity : class
     {
+        private readonly IAssetExtractor assetExtractor;
+
         private readonly IEntityTypeDefinition<TEntity> metadataDefinition;
+
+        private readonly Lazy<Dictionary<Type, Guid>> externalSystemIdsByType;
 
         private readonly Lazy<EntityTypeMetadata> metadata;
 
         [ImportingConstructor]
         public MetadataParser(
+            IAssetExtractor assetExtractor,
             [Import(AllowDefault = true)] IEntityTypeDefinition<TEntity> metadataDefinition)
         {
+            this.assetExtractor = assetExtractor;
             this.metadataDefinition = metadataDefinition;
+            this.externalSystemIdsByType =
+                new Lazy<Dictionary<Type, Guid>>(this.GetExternalSystemIdsByType);
             this.metadata = new Lazy<EntityTypeMetadata>(this.ParseMetadata);
         }
 
@@ -41,10 +47,18 @@ namespace Synnduit
             get { return this.metadata.Value; }
         }
 
+        private Dictionary<Type, Guid> GetExternalSystemIdsByType() =>
+            this
+            .assetExtractor
+            .GetExternalSystems()
+            .ToDictionary(
+                x => x.AssetType,
+                x => x.AssetAttribute.Id);
+
         private EntityTypeMetadata ParseMetadata()
         {
-            var context = new MetadataDefinitionContext();
-            if(this.metadataDefinition != null)
+            var context = new MetadataDefinitionContext(this);
+            if (this.metadataDefinition != null)
             {
                 this.metadataDefinition.Define(context);
             }
@@ -78,10 +92,10 @@ namespace Synnduit
             where TAttribute : Attribute
         {
             PropertyInfo identifierProperty = contextIdentifierProperty;
-            if(identifierProperty == null)
+            if (identifierProperty == null)
             {
                 identifierProperty = this.GetProperty<TAttribute>();
-                if(identifierProperty == null)
+                if (identifierProperty == null)
                 {
                     throw new InvalidOperationException(string.Format(
                         exceptionMessageFormat, typeof(TEntity).FullName));
@@ -102,7 +116,7 @@ namespace Synnduit
                     .SingleOrDefault(
                         property => property.GetCustomAttribute<TAttribute>() != null);
             }
-            catch(InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 throw new InvalidOperationException(string.Format(
                     Resources.AmbiguousIdentifierProperty,
@@ -147,7 +161,7 @@ namespace Synnduit
             params IEnumerable<TProperty>[] propertyLists)
         {
             var properties = new Dictionary<TKey, TProperty>();
-            foreach(TProperty property in
+            foreach (TProperty property in
                 propertyLists.SelectMany(propertyList => propertyList))
             {
                 validateProperty(property);
@@ -167,7 +181,12 @@ namespace Synnduit
                     property.Attribute.GroupName,
                     property.Attribute.NullifyIfWhiteSpaceOnly,
                     property.Attribute.IgnoreTrailingWhiteSpace,
-                    this.GetMaxLength(property.Property)));
+                    this.GetMaxLength(property.Property),
+                    this.GetExternalSystemIds(
+                        property
+                        .Property
+                        .GetCustomAttribute<ForceNullPropagationAttribute>()
+                        ?.SourceSystemTypes)));
         }
 
         private IEnumerable<ReferenceIdentifierProperty>
@@ -198,10 +217,10 @@ namespace Synnduit
             where TAttribute : Attribute
         {
             var properties = new List<PropertyWrapper<TAttribute>>();
-            foreach(PropertyInfo property in typeof(TEntity).GetProperties())
+            foreach (PropertyInfo property in typeof(TEntity).GetProperties())
             {
                 TAttribute attribute = property.GetCustomAttribute<TAttribute>();
-                if(attribute != null)
+                if (attribute != null)
                 {
                     properties.Add(
                         new PropertyWrapper<TAttribute>(property, attribute));
@@ -213,10 +232,10 @@ namespace Synnduit
         private PropertyInfo GetProperty(string propertyName)
         {
             PropertyInfo property = null;
-            if(propertyName != null)
+            if (propertyName != null)
             {
                 property = typeof(TEntity).GetProperty(propertyName);
-                if(property == null)
+                if (property == null)
                 {
                     this.ThrowPropertyException(Resources.PropertyNotFound, propertyName);
                 }
@@ -229,7 +248,7 @@ namespace Synnduit
             int maxLength = -1;
             MaxLengthAttribute maxLengthAttribute =
                 property.GetCustomAttribute<MaxLengthAttribute>();
-            if(maxLengthAttribute != null)
+            if (maxLengthAttribute != null)
             {
                 maxLength = maxLengthAttribute.Length;
             }
@@ -240,7 +259,7 @@ namespace Synnduit
             GetReferenceSourceSystemIdentifierProperty(string propertyName)
         {
             PropertyInfo property = typeof(TEntity).GetProperty(propertyName);
-            if(property == null)
+            if (property == null)
             {
                 this.ThrowPropertyException(
                     Resources.PropertyNotFound, propertyName);
@@ -248,10 +267,33 @@ namespace Synnduit
             return property;
         }
 
+        private IEnumerable<Guid> GetExternalSystemIds(IEnumerable<Type> sourceSystemTypes)
+        {
+            var externalSystemIds = new List<Guid>();
+            if (sourceSystemTypes != null)
+            {
+                foreach (var sourceSystemType in sourceSystemTypes)
+                {
+                    if (this.externalSystemIdsByType.Value.TryGetValue(
+                        sourceSystemType, out Guid externalSystemId))
+                    {
+                        externalSystemIds.Add(externalSystemId);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            Resources.TypeDoesNotRepresentExternalSystem,
+                            sourceSystemType.FullName));
+                    }
+                }
+            }
+            return externalSystemIds;
+        }
+
         private void ValidateEntityProperty(EntityProperty entityProperty)
         {
             this.ValidatePropertyReadableAndWritable(entityProperty.Property);
-            if(entityProperty.NullableProxyProperty != null)
+            if (entityProperty.NullableProxyProperty != null)
             {
                 this.ValidateProxyProperty(
                     entityProperty.Property,
@@ -262,7 +304,7 @@ namespace Synnduit
         private void ValidateProxyProperty(
             PropertyInfo property, PropertyInfo proxyProperty)
         {
-            if(property.PropertyType.IsValueType == false)
+            if (property.PropertyType.IsValueType == false)
             {
                 this.ThrowPropertyException(
                     Resources.PropertyNotValueType, property.Name);
@@ -275,18 +317,18 @@ namespace Synnduit
             PropertyInfo property, PropertyInfo proxyProperty)
         {
             bool isValid = true;
-            if(proxyProperty.PropertyType.IsConstructedGenericType == false)
+            if (proxyProperty.PropertyType.IsConstructedGenericType == false)
             {
                 isValid = false;
             }
-            else if(
+            else if (
                 proxyProperty
                 .PropertyType
                 .GetGenericTypeDefinition() != typeof(Nullable<>))
             {
                 isValid = false;
             }
-            else if(
+            else if (
                 proxyProperty
                 .PropertyType
                 .GetGenericArguments()
@@ -294,7 +336,7 @@ namespace Synnduit
             {
                 isValid = false;
             }
-            if(isValid == false)
+            if (isValid == false)
             {
                 this.ThrowPropertyException(
                     Resources.InvalidProxyPropertyType, proxyProperty.Name);
@@ -312,7 +354,7 @@ namespace Synnduit
 
         private void ValidatePropertyReadableAndWritable(PropertyInfo property)
         {
-            if(!(property.CanRead && property.CanWrite))
+            if (!(property.CanRead && property.CanWrite))
             {
                 this.ThrowPropertyException(
                     Resources.PropertyMustBeReadableAndWritable, property.Name);
@@ -321,7 +363,7 @@ namespace Synnduit
 
         private void ValidatePropertyReadable(PropertyInfo property)
         {
-            if(property.CanRead == false)
+            if (property.CanRead == false)
             {
                 this.ThrowPropertyException(
                     Resources.PropertyMustBeReadable, property.Name);
@@ -337,6 +379,8 @@ namespace Synnduit
 
         private class MetadataDefinitionContext : IEntityTypeDefinitionContext<TEntity>
         {
+            private readonly MetadataParser<TEntity> parent;
+
             private readonly List<EntityProperty> entityProperties;
 
             private readonly List<
@@ -344,8 +388,9 @@ namespace Synnduit
 
             private readonly List<PropertyInfo> duplicationKeyProperties;
 
-            public MetadataDefinitionContext()
+            public MetadataDefinitionContext(MetadataParser<TEntity> parent)
             {
+                this.parent = parent;
                 this.entityProperties = new List<EntityProperty>();
                 this.referenceIdentifierProperties =
                     new List<ReferenceIdentifierProperty>();
@@ -371,10 +416,15 @@ namespace Synnduit
                 string groupName,
                 bool nullifyIfWhiteSpaceOnly,
                 bool ignoreTrailingWhiteSpace,
-                int maxLength)
+                int maxLength,
+                IEnumerable<Type> forceNullPropagationSourceSystemTypes)
             {
                 ArgumentValidator.EnsureArgumentNotNull(
                     propertyExpression, nameof(propertyExpression));
+                ArgumentValidator.EnsureArgumentsNotNullAndUnique(
+                    forceNullPropagationSourceSystemTypes,
+                    nameof(forceNullPropagationSourceSystemTypes),
+                    allowNull: true);
                 this.entityProperties.Add(
                     new EntityProperty(
                         this.GetProperty(propertyExpression, nameof(propertyExpression)),
@@ -382,14 +432,16 @@ namespace Synnduit
                         groupName,
                         nullifyIfWhiteSpaceOnly,
                         ignoreTrailingWhiteSpace,
-                        maxLength));
+                        maxLength,
+                        this.parent.GetExternalSystemIds(forceNullPropagationSourceSystemTypes)));
             }
 
             public void EntityProperty<TValue>(
                 Expression<Func<TEntity, TValue>> propertyExpression,
                 Expression<Func<TEntity, TValue?>> nullableProxyPropertyExpression,
                 string groupName,
-                int maxLength)
+                int maxLength,
+                IEnumerable<Type> forceNullPropagationSourceSystemTypes)
                 where TValue : struct
             {
                 ArgumentValidator.EnsureArgumentNotNull(
@@ -397,6 +449,10 @@ namespace Synnduit
                 ArgumentValidator.EnsureArgumentNotNull(
                     nullableProxyPropertyExpression,
                     nameof(nullableProxyPropertyExpression));
+                ArgumentValidator.EnsureArgumentsNotNullAndUnique(
+                    forceNullPropagationSourceSystemTypes,
+                    nameof(forceNullPropagationSourceSystemTypes),
+                    allowNull: true);
                 this.entityProperties.Add(
                     new EntityProperty(
                         this.GetProperty(propertyExpression, nameof(propertyExpression)),
@@ -406,7 +462,8 @@ namespace Synnduit
                         groupName,
                         true,
                         false,
-                        maxLength));
+                        maxLength,
+                        this.parent.GetExternalSystemIds(forceNullPropagationSourceSystemTypes)));
             }
 
             public void ReferenceIdentifier<TDestinationIdentifier, TSourceIdentifier>(
@@ -476,7 +533,7 @@ namespace Synnduit
                 PropertyInfo property;
                 string propertyName = this.ExtractPropertyName(expression, paramName);
                 property = typeof(TEntity).GetProperty(propertyName);
-                if(property == null)
+                if (property == null)
                 {
                     throw new ArgumentException(
                         Resources.ExpressionDoesNotRepresentProperty, paramName);
@@ -491,7 +548,7 @@ namespace Synnduit
                 string propertyName;
                 string expressionBodyAsString = expression.Body.ToString();
                 int dotIndex = expressionBodyAsString.LastIndexOf('.');
-                if(dotIndex >= 0)
+                if (dotIndex >= 0)
                 {
                     propertyName = expressionBodyAsString.Substring(dotIndex + 1);
                 }

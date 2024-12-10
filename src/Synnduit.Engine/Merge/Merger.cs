@@ -37,11 +37,11 @@ namespace Synnduit.Merge
         public IEnumerable<ValueChange> Merge(IMergerEntity<TEntity> entity)
         {
             var changes = new List<ValueChange>();
-            foreach(PropertyGroup group in this.propertyGroups.Value)
+            foreach (PropertyGroup group in this.propertyGroups.Value)
             {
-                if(group.ValuesDiffer(entity.Previous, entity.Current))
+                if (group.ValuesDiffer(entity))
                 {
-                    if(this.ShouldPropagateChanges(entity.Trunk, group))
+                    if (this.ShouldPropagateChanges(entity.Trunk, group))
                     {
                         group.CopyValues(entity.Trunk, entity.Current, changes);
                     }
@@ -53,7 +53,7 @@ namespace Synnduit.Merge
         private IEnumerable<PropertyGroup> CreatePropertyGroups()
         {
             var propertyGroups = new List<PropertyGroup>();
-            foreach(EntityProperty property in
+            foreach (EntityProperty property in
                 this.metadataParser.Metadata.EntityProperties)
             {
                 PropertyGroup propertyGroup =
@@ -67,11 +67,11 @@ namespace Synnduit.Merge
             List<PropertyGroup> propertyGroups, string groupName)
         {
             PropertyGroup propertyGroup;
-            if(!string.IsNullOrWhiteSpace(groupName))
+            if (!string.IsNullOrWhiteSpace(groupName))
             {
                 propertyGroup = propertyGroups
                     .FirstOrDefault(pg => pg.GroupName == groupName);
-                if(propertyGroup == null)
+                if (propertyGroup == null)
                 {
                     propertyGroup = new PropertyGroup(groupName);
                     propertyGroups.Add(propertyGroup);
@@ -89,11 +89,11 @@ namespace Synnduit.Merge
             TEntity trunkVersion, PropertyGroup propertyGroup)
         {
             bool propagate = false;
-            if(this.strategy == MergeStrategy.AllChanges)
+            if (this.strategy == MergeStrategy.AllChanges)
             {
                 propagate = true;
             }
-            else if(this.strategy == MergeStrategy.NewValuesOnly)
+            else if (this.strategy == MergeStrategy.NewValuesOnly)
             {
                 propagate = !propertyGroup.HasValue(trunkVersion);
             }
@@ -115,9 +115,9 @@ namespace Synnduit.Merge
             public bool HasValue(TEntity entity)
             {
                 bool hasValue = false;
-                foreach(EntityProperty property in this.Properties)
+                foreach (EntityProperty property in this.Properties)
                 {
-                    if(this.GetValue(entity, property) != null)
+                    if (this.GetValue(entity, property) != null)
                     {
                         hasValue = true;
                         break;
@@ -126,20 +126,27 @@ namespace Synnduit.Merge
                 return hasValue;
             }
 
-            public bool ValuesDiffer(TEntity entityX, TEntity entityY)
+            public bool ValuesDiffer(IMergerEntity<TEntity> entity)
             {
                 bool valuesDiffer = false;
-                foreach(EntityProperty property in this.Properties)
+                foreach (EntityProperty property in this.Properties)
                 {
-                    object valueX = this.GetValue(entityX, property);
-                    object valueY = this.GetValue(entityY, property);
-                    if(!object.Equals(valueX, valueY))
+                    object previousValue = this.GetValue(entity.Previous, property);
+                    object currentValue = this.GetValue(entity.Current, property);
+                    if (!object.Equals(previousValue, currentValue) ||
+                        ShouldForceNullPropagation(property, currentValue))
                     {
                         valuesDiffer = true;
                         break;
                     }
                 }
                 return valuesDiffer;
+
+                bool ShouldForceNullPropagation(EntityProperty property, object currentValue) =>
+                    entity.Previous == null &&
+                    currentValue == null &&
+                    property.ForceNullPropagationSourceSystemIds.Contains(entity.SourceSystemId) &&
+                    this.GetValue(entity.Trunk, property) != null;
             }
 
             public void CopyValues(
@@ -147,13 +154,13 @@ namespace Synnduit.Merge
                 TEntity sourceEntity,
                 IList<ValueChange> changes)
             {
-                foreach(EntityProperty property in this.Properties)
+                foreach (EntityProperty property in this.Properties)
                 {
                     object previousValue = this.GetValue(destinationEntity, property);
                     object newValue = this.GetValue(sourceEntity, property);
-                    if(!this.Equal(previousValue, newValue, property))
+                    if (!this.Equal(previousValue, newValue, property))
                     {
-                        if(this.SetValue(destinationEntity, property, newValue))
+                        if (this.SetValue(destinationEntity, property, newValue))
                         {
                             var change = new ValueChange(
                                 property.Property.Name,
@@ -168,9 +175,9 @@ namespace Synnduit.Merge
             private object GetValue(TEntity entity, EntityProperty property)
             {
                 object value = null;
-                if(entity != null)
+                if (entity != null)
                 {
-                    if(property.NullableProxyProperty != null)
+                    if (property.NullableProxyProperty != null)
                     {
                         value = property.NullableProxyProperty.GetValue(entity);
                     }
@@ -188,7 +195,7 @@ namespace Synnduit.Merge
                 EntityProperty property)
             {
                 bool equal;
-                if(previousValue is string &&
+                if (previousValue is string &&
                     newValue is string &&
                     property.IgnoreTrailingWhiteSpace)
                 {
@@ -203,21 +210,21 @@ namespace Synnduit.Merge
 
             private string TrimEnd(object value)
             {
-                return ((string) value).TrimEnd();
+                return ((string)value).TrimEnd();
             }
 
             private bool SetValue(
                 TEntity entity, EntityProperty property, object value)
             {
                 bool valueSet = false;
-                if(value != null ||
+                if (value != null ||
                     property.Property.PropertyType.IsValueType == false ||
                     (property.Property.PropertyType.IsConstructedGenericType &&
                      property.Property.PropertyType.GetGenericTypeDefinition()
                         == typeof(Nullable<>)))
                 {
                     property.Property.SetValue(entity, value);
-                    if(property.NullableProxyProperty != null)
+                    if (property.NullableProxyProperty != null)
                     {
                         property.NullableProxyProperty.SetValue(entity, value);
                     }
@@ -229,13 +236,13 @@ namespace Synnduit.Merge
             private string ValueToString(object value)
             {
                 string result = null;
-                if(value is IFormattable)
+                if (value is IFormattable)
                 {
                     result =
-                        ((IFormattable) value)
+                        ((IFormattable)value)
                         .ToString(null, CultureInfo.InvariantCulture);
                 }
-                else if(value != null)
+                else if (value != null)
                 {
                     result = value.ToString();
                 }
